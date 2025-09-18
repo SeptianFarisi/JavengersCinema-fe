@@ -1,7 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaVideo, FaSearch } from 'react-icons/fa'; // Import Hero Icons
+import { useNavigate } from 'react-router-dom';
+import useMovieStore from '../store/movieStore';
 
 const Header: React.FC = () => {
+  const [headerSearchTerm, setHeaderSearchTerm] = useState('');
+  const navigate = useNavigate();
+  const { fetchMovies } = useMovieStore();
+
+  const handleHeaderSearch = () => {
+    if (headerSearchTerm.trim()) {
+      fetchMovies(headerSearchTerm);
+      navigate('/'); // Navigate to home page to show search results
+    }
+  };
+
   return (
     <header className="flex justify-between items-center p-4 bg-white shadow-md">
       <div className="flex items-center">
@@ -9,17 +22,29 @@ const Header: React.FC = () => {
         <span className="text-2xl font-bold text-red-600">JAVENGERS <span className="text-gray-800">CINEMA</span></span>
       </div>
       <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
-        <input type="text" placeholder="Search..." className="p-2 outline-none text-base" />
-        <button className="bg-gray-100 p-2 cursor-pointer">
+        <input
+          type="text"
+          placeholder="Search..."
+          className="p-2 outline-none text-base"
+          value={headerSearchTerm}
+          onChange={(e) => setHeaderSearchTerm(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              handleHeaderSearch();
+            }
+          }}
+        />
+        <button onClick={handleHeaderSearch} className="bg-gray-100 p-2 cursor-pointer">
           <FaSearch className="h-5 w-5 text-gray-600" /> {/* Using Hero Icon for search */}
         </button>
       </div>
       <nav className="flex items-center">
-        <a href="#" className="ml-6 text-gray-800 font-medium hover:text-red-600">HOME</a>
+        <a href="#" onClick={() => navigate('/')} className="ml-6 text-gray-800 font-medium hover:text-red-600">HOME</a>
         <a href="#" className="ml-6 text-gray-800 font-medium hover:text-red-600">MOVIE</a>
         <a href="#" className="ml-6 text-gray-800 font-medium hover:text-red-600">SERIES</a>
         <a href="#" className="ml-6 text-gray-800 font-medium hover:text-red-600">EPISODE</a>
-        {/* <button className="bg-red-600 text-white px-4 py-2 rounded-md ml-6 hover:bg-red-700">EPISODE</button> */}
+        <a onClick={() => navigate('/movies')} className="ml-6 text-gray-800 font-medium hover:text-red-600 cursor-pointer">MOVIE LIST</a>
+        <a onClick={() => navigate('/login')} className="ml-6 text-gray-800 font-medium hover:text-red-600 cursor-pointer">LOGIN</a>
       </nav>
     </header>
   );

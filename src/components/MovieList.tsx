@@ -3,11 +3,11 @@ import MovieCard from './MovieCard';
 import useMovieStore from '../store/movieStore';
 
 const MovieList: React.FC = () => {
-  const { movies, loading, error, fetchMovies } = useMovieStore();
+  const { movies, loading, error, fetchLocalMovies } = useMovieStore();
 
   useEffect(() => {
-    fetchMovies('not'); // Fetch some initial movies with title 'a'
-  }, [fetchMovies]);
+    fetchLocalMovies(); // Fetch movies from local API
+  }, [fetchLocalMovies]);
 
   if (loading) {
     return <div className="text-center p-8">Loading movies...</div>;

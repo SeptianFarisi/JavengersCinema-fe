@@ -4,14 +4,20 @@ import useMovieStore from '../store/movieStore';
 
 const MovieDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { movies, fetchMovieDetail, loading, error } = useMovieStore();
+  const { movies, fetchMovieDetail, fetchMovieTrailer, loading, error, trailerLoading, trailerError } = useMovieStore();
   const movie = movies.find((m) => m.imdbID === id);
 
   useEffect(() => {
     if (id && (!movie || !movie.Plot)) { // Fetch details if movie not found or plot is missing
       fetchMovieDetail(id);
     }
-  }, [id, fetchMovieDetail]);
+  }, [id, fetchMovieDetail, movie]); // Added movie to dependency array
+
+  useEffect(() => {
+    if (movie && movie.imdbID && !movie.Trailer && !trailerLoading && !trailerError) {
+      fetchMovieTrailer(movie.imdbID);
+    }
+  }, [movie, fetchMovieTrailer, trailerLoading, trailerError]);
 
   if (loading) {
     return <div className="text-center p-8">Loading movie details...</div>;
@@ -38,6 +44,23 @@ const MovieDetailPage: React.FC = () => {
           <p className="text-lg mb-4">{movie.Plot}</p>
           {movie.imdbRating && <p className="text-md text-gray-600">Rating: {movie.imdbRating}/10</p>}
           {movie.Released && <p className="text-md text-gray-600">Release Date: {movie.Released}</p>}
+          {trailerLoading && <p className="text-md text-gray-600">Loading trailer...</p>}
+          {trailerError && <p className="text-md text-red-500">Error loading trailer: {trailerError}</p>}
+          {movie.Trailer && (
+            <div className="mt-4">
+              <h2 className="text-2xl font-bold mb-2">Trailer</h2>
+              <iframe
+                width="560"
+                height="315"
+                src={movie.Trailer}
+                title="Movie Trailer"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="rounded-lg shadow-lg"
+              ></iframe>
+            </div>
+          )}
           {/* Add more details as needed */}
         </div>
       </div>
