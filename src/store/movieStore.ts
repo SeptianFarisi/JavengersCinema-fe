@@ -29,7 +29,7 @@ interface MovieState {
 
 const LOCAL_API_BASE_URL = 'http://localhost:8080/api/movies';
 const OMDB_API_BASE_URL = 'http://localhost:8080/api/movies/omdb';
-const TRAILER_API_BASE_URL = 'http://localhost:8080/api/trailers';
+const TRAILER_API_BASE_URL = 'http://localhost:8080/api/trailers/tmdb';
 
 const useMovieStore = create<MovieState>((set, get) => ({
   movies: [],
@@ -106,28 +106,36 @@ const useMovieStore = create<MovieState>((set, get) => ({
     }
   },
   fetchMovieTrailer: async (imdbID: string) => {
-    set({ trailerLoading: true, trailerError: null });
-    try {
-      const response = await axios.get<{ success: boolean; message: string; data: { trailerUrl: string } }>(`${TRAILER_API_BASE_URL}/movie/${encodeURIComponent(imdbID)}`);
-
-      if (response.data.success) {
-        const trailerUrl = response.data.data.trailerUrl;
-        set((state) => ({
-          movies: state.movies.map((movie) =>
-            movie.imdbID === imdbID ? { ...movie, Trailer: trailerUrl } : movie
-          ),
-          trailerLoading: false,
-        }));
-        return trailerUrl;
-      } else {
-        set({ trailerError: response.data.message || 'Failed to fetch trailer', trailerLoading: false });
+  set({ trailerLoading: true, trailerError: null });
+  try {
+    const response = await axios.get(`${TRAILER_API_BASE_URL}/${encodeURIComponent(imdbID)}`);
+    if (response.data.success) {
+      const trailers = response.data.data; // array
+      if (trailers.length === 0) {
+        set({ trailerLoading: false, trailerError: 'No trailers found' });
         return null;
       }
-    } catch (error) {
-      set({ trailerError: 'Failed to fetch trailer', trailerLoading: false });
+
+      const trailerUrl = trailers[0].trailerUrl; // ambil trailer pertama
+      set((state) => ({
+        movies: state.movies.map((movie) =>
+          movie.imdbID === imdbID
+            ? { ...movie, Trailer: trailerUrl }
+            : movie
+        ),
+        trailerLoading: false,
+      }));
+      return trailerUrl;
+    } else {
+      set({ trailerError: response.data.message || 'Failed to fetch trailer', trailerLoading: false });
       return null;
     }
-  },
+  } catch (error) {
+    set({ trailerError: 'Failed to fetch trailer', trailerLoading: false });
+    return null;
+  }
+},
+
 }));
 
 export default useMovieStore;

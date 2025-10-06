@@ -8,6 +8,7 @@ import MovieListPage from './components/MovieListPage';
 import AddMoviePage from './components/AddMoviePage';
 import UpdateMoviePage from './components/UpdateMoviePage';
 import useMovieStore from './store/movieStore';
+import SearchMoviePage from './components/SearchMoviePage';
 
 function App() {
   const { fetchMovies, fetchLocalMovies } = useMovieStore();
@@ -32,6 +33,7 @@ function App() {
               </footer>
             </>
           } />
+          <Route path="/search" element={<SearchMoviePage />} />
           <Route path="/movie/:id" element={<MovieDetailPage />} />
           <Route path="/movies" element={<MovieListPage />} />
           <Route path="/add-movie" element={<AddMoviePage />} />

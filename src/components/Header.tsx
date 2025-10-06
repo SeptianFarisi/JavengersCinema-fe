@@ -10,15 +10,14 @@ const Header: React.FC = () => {
 
   const handleHeaderSearch = () => {
     if (headerSearchTerm.trim()) {
-      fetchMovies(headerSearchTerm);
-      navigate('/'); // Navigate to home page to show search results
+      navigate(`/search?query=${encodeURIComponent(headerSearchTerm)}`); // Navigate to search page with query parameter
     }
   };
 
   return (
     <header className="flex justify-between items-center p-4 bg-white shadow-md">
       <div className="flex items-center">
-        <FaVideo className="h-8 w-8 text-red-600 mr-2" /> {/* Using Hero Icon for logo */}
+        <FaVideo onClick={() => navigate('/login')} className="h-8 w-8 text-red-600 mr-2" /> {/* Using Hero Icon for logo */}
         <span className="text-2xl font-bold text-red-600">JAVENGERS <span className="text-gray-800">CINEMA</span></span>
       </div>
       <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
@@ -43,8 +42,7 @@ const Header: React.FC = () => {
         <a href="#" className="ml-6 text-gray-800 font-medium hover:text-red-600">MOVIE</a>
         <a href="#" className="ml-6 text-gray-800 font-medium hover:text-red-600">SERIES</a>
         <a href="#" className="ml-6 text-gray-800 font-medium hover:text-red-600">EPISODE</a>
-        <a onClick={() => navigate('/movies')} className="ml-6 text-gray-800 font-medium hover:text-red-600 cursor-pointer">MOVIE LIST</a>
-        <a onClick={() => navigate('/login')} className="ml-6 text-gray-800 font-medium hover:text-red-600 cursor-pointer">LOGIN</a>
+        <a onClick={() => navigate('/')} className="ml-6 text-gray-800 font-medium hover:text-red-600 cursor-pointer">NOW PLAYING</a>
       </nav>
     </header>
   );

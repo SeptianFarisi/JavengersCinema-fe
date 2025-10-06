@@ -1,34 +1,34 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import useMovieStore from '../store/movieStore';
 import MovieList from './MovieList';
+import Header from './Header'; // Import Header component
 
 const SearchMoviePage: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
   const { movies, loading, error, fetchMovies } = useMovieStore();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const searchTerm = queryParams.get('query') || '';
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchMovies(searchTerm);
-  };
+  useEffect(() => {
+    if (searchTerm) {
+      fetchMovies(searchTerm);
+    }
+  }, [searchTerm, fetchMovies]);
 
   return (
-    <div className="search-movie-page">
-      <form onSubmit={handleSearch} className="search-form">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search for movies..."
-          className="search-input"
-        />
-        <button type="submit" className="search-button">Search</button>
-      </form>
-
-      {loading && <p>Loading movies...</p>}
-      {error && <p className="error-message">{error}</p>}
-      {!loading && !error && movies.length > 0 && <MovieList />}
-      {!loading && !error && movies.length === 0 && searchTerm && <p>No movies found for "{searchTerm}".</p>}
-      {!loading && !error && movies.length === 0 && !searchTerm && <p>Start searching for movies!</p>}
+    <div className="min-h-screen bg-gray-100 text-gray-800"> {/* Added main div wrapper */}
+      <Header /> {/* Added Header */}
+      <div className="search-movie-page"> {/* Original content wrapper */}
+        {loading && <p>Loading movies...</p>}
+        {error && <p className="error-message">{error}</p>}
+        {<MovieList />}
+        {!loading && !error && movies.length === 0 && searchTerm && <p>No movies found for "{searchTerm}".</p>}
+        {!loading && !error && movies.length === 0 && !searchTerm && <p>Start searching for movies!</p>}
+      </div>
+      <footer className="bg-gray-800 text-white text-center p-4 mt-auto"> {/* Added Footer */}
+        Powered by OMDb API
+      </footer>
     </div>
   );
 };

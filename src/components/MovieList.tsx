@@ -21,13 +21,13 @@ const MovieList: React.FC = () => {
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 p-8 justify-items-center">
       {movies.map((movie) => (
         <MovieCard
-          key={movie.imdbID}
-          id={movie.imdbID}
-          title={movie.Title}
-          type={movie.Type || 'N/A'} // Use movie.Type from OMDB API, default to 'N/A'
-          year={movie.Year}
-          imageUrl={movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/500x750?text=No+Image'}
-        />
+            key={movie.imdbID}
+            id={movie.imdbID}
+            title={movie.Title}
+            type={movie.Type || 'N/A'} // Use movie.Type from OMDB API, default to 'N/A'
+            year={movie.Year}
+            imageUrl={movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/500x750?text=No+Image'}
+          />
       ))}
     </div>
   );
