@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { FaVideo, FaSearch } from 'react-icons/fa'; // Import Hero Icons
 import { useNavigate } from 'react-router-dom';
-import useMovieStore from '../store/movieStore';
+// import useMovieStore from '../store/movieStore';
 
 const Header: React.FC = () => {
   const [headerSearchTerm, setHeaderSearchTerm] = useState('');
   const navigate = useNavigate();
-  const { fetchMovies } = useMovieStore();
+  // const { fetchMovies } = useMovieStore();
 
   const handleHeaderSearch = () => {
     if (headerSearchTerm.trim()) {
