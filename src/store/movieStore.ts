@@ -31,7 +31,7 @@ const LOCAL_API_BASE_URL = 'http://localhost:8080/api/movies';
 const OMDB_API_BASE_URL = 'http://localhost:8080/api/movies/omdb';
 const TRAILER_API_BASE_URL = 'http://localhost:8080/api/trailers/tmdb';
 
-const useMovieStore = create<MovieState>((set, get) => ({
+const useMovieStore = create<MovieState>((set) => ({
   movies: [],
   loading: false,
   error: null,

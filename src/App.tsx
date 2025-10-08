@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import MovieList from './components/MovieList';
@@ -11,7 +11,7 @@ import useMovieStore from './store/movieStore';
 import SearchMoviePage from './components/SearchMoviePage';
 
 function App() {
-  const { fetchMovies, fetchLocalMovies } = useMovieStore();
+  const { fetchLocalMovies } = useMovieStore();
 
   useEffect(() => {
     // Fetch movies from the local API when the app mounts
