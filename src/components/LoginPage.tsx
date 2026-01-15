@@ -1,22 +1,46 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilmIcon } from '@heroicons/react/24/solid';
+import axios from 'axios'; // Import axios
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null); // State for login errors
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => { // Make handleLogin async
     e.preventDefault();
-    console.log('Login attempt with:', { username, password });
-    // Here you would typically send a request to your backend for authentication
-    // For now, we'll just log the credentials.
-    alert('Login functionality not yet implemented.');
+    setError(null); // Clear previous errors
+    try {
+      const response = await axios.post('http://localhost:8080/api/users/authenticate', {
+        username,
+        password,
+      });
+
+      console.log('Login API Response:', response.data); // Log the full response data
+
+      if (response.data.id) { // Check for id or username to indicate success
+        // Assuming the backend returns user info directly on success.
+        // If a specific token is expected, please clarify its location in the response.
+        localStorage.setItem('userToken', response.data.username); // Temporarily store username as token
+        console.log('Login successful, redirecting to /');
+        navigate('/'); // Redirect to home page
+      } else {
+        console.error('Login failed:', response.data.message);
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'An error occurred during login. Please try again.');
+      console.error('Login error:', err.response?.data || err.message); // Log the full error object
+    }
   };
 
   const handleGoHome = () => {
     navigate('/');
+  };
+
+  const handleGoRegister = () => {
+    navigate('/register');
   };
 
   return (
@@ -33,7 +57,7 @@ const LoginPage: React.FC = () => {
             <input
               type="text"
               id="username"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
@@ -45,7 +69,7 @@ const LoginPage: React.FC = () => {
             <input
               type="password"
               id="password"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
@@ -68,6 +92,22 @@ const LoginPage: React.FC = () => {
             </button>
           </div>
         </form>
+
+        {error && (
+          <div className="text-red-500 text-center mt-4">
+            {error}
+          </div>
+        )}
+
+        <div className="text-center mt-4">
+          <button
+            type="button"
+            onClick={handleGoRegister}
+            className="text-blue-600 hover:underline"
+          >
+            Belum punya akun? Daftar sekarang
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-interface Movie {
+export interface Movie { // Exported Movie interface
   imdbID: string;
   Title: string;
   Year: string;
@@ -19,49 +19,67 @@ interface MovieState {
   movies: Movie[];
   loading: boolean;
   error: string | null;
-  trailerLoading: boolean; // Added trailer loading state
-  trailerError: string | null; // Added trailer error state
-  fetchMovies: (searchTerm?: string) => Promise<void>;
+  currentPage: number; // Added for pagination
+  totalPages: number; // Added for pagination
+  totalResults: number; // Added for pagination
+  trailerLoading: boolean;
+  trailerError: string | null;
+  fetchMovies: (searchTerm?: string, page?: number) => Promise<void>; // Modified to accept page
   fetchMovieDetail: (imdbID: string) => Promise<Movie | null>;
   fetchMovieTrailer: (imdbID: string) => Promise<string | null>;
-  fetchLocalMovies: () => Promise<void>; // Added fetchLocalMovies
+  fetchLocalMovies: (type?: string) => Promise<void>;
+  fetchMoviesByType: (type: string) => Promise<void>;
+  setCurrentPage: (page: number) => void; // Added to update current page
 }
 
-const LOCAL_API_BASE_URL = 'http://localhost:8080/api/movies';
-const OMDB_API_BASE_URL = 'http://localhost:8080/api/movies/omdb';
-const TRAILER_API_BASE_URL = 'http://localhost:8080/api/trailers/tmdb';
+const LOCAL_API_BASE_URL = 'https://8bfa0afe7c6c.ngrok-free.app/api/movies';
+const OMDB_API_BASE_URL = 'https://8bfa0afe7c6c.ngrok-free.app/api/movies/omdb';
+const TRAILER_API_BASE_URL = 'https://8bfa0afe7c6c.ngrok-free.app/api/trailers/tmdb';
 
 const useMovieStore = create<MovieState>((set) => ({
   movies: [],
   loading: false,
   error: null,
+  currentPage: 1, // Initial page
+  totalPages: 1, // Initial total pages
+  totalResults: 0, // Initial total results
   trailerLoading: false,
   trailerError: null,
-  fetchMovies: async (searchTerm = 'not') => {
+  fetchMovies: async (searchTerm = 'not', page = 1) => { // Added page parameter
     set({ loading: true, error: null });
     try {
-      const response = await axios.get<{ success: boolean; message: string; data: { Search: Movie[]; Response: string; Error?: string } }>(`${OMDB_API_BASE_URL}/search`, {
+      const response = await axios.get<{ success: boolean; message: string; data: { Search: Movie[]; totalResults: string; Response: string; Error?: string } }>(`${OMDB_API_BASE_URL}/search`, {
         params: {
           title: searchTerm,
+          page: page, // Pass page to API
         },
       });
 
       if (response.data.success && response.data.data.Response === 'True') {
-        set({ movies: response.data.data.Search, loading: false });
+        const totalResults = parseInt(response.data.data.totalResults, 10);
+        const moviesPerPage = 10; // OMDB API typically returns 10 results per page
+        set({
+          movies: response.data.data.Search,
+          loading: false,
+          currentPage: page,
+          totalResults: totalResults,
+          totalPages: Math.ceil(totalResults / moviesPerPage),
+        });
       } else {
-        set({ error: response.data.data.Error || response.data.message || 'Failed to fetch movies', loading: false });
+        set({ error: response.data.data.Error || response.data.message || 'Failed to fetch movies', loading: false, movies: [], totalResults: 0, totalPages: 1 });
       }
     } catch (error) {
-      set({ error: 'Failed to fetch movies', loading: false });
+      set({ error: 'Failed to fetch movies', loading: false, movies: [], totalResults: 0, totalPages: 1 });
     }
   },
-  fetchLocalMovies: async () => { // New function to fetch from local API
+  fetchLocalMovies: async (type?: string) => { // Modified to accept optional type
     set({ loading: true, error: null });
     try {
       const response = await axios.get<{ success: boolean; message: string; data: Movie[] }>(`${LOCAL_API_BASE_URL}`);
 
       if (response.data.success) {
-        set({ movies: response.data.data, loading: false });
+        const filteredMovies = type ? response.data.data.filter(movie => movie.Type.toLowerCase() === type.toLowerCase()) : response.data.data;
+        set({ movies: filteredMovies, loading: false });
       } else {
         set({ error: response.data.message || 'Failed to fetch local movies', loading: false });
       }
@@ -69,8 +87,23 @@ const useMovieStore = create<MovieState>((set) => ({
       set({ error: 'Failed to fetch local movies', loading: false });
     }
   },
-  fetchMovieDetail: async (imdbID: string) => {
+  fetchMoviesByType: async (type: string) => { // New function to fetch movies by type
     set({ loading: true, error: null });
+    try {
+      const response = await axios.get<{ success: boolean; message: string; data: Movie[] }>(`${LOCAL_API_BASE_URL}`);
+
+      if (response.data.success) {
+        const filteredMovies = response.data.data.filter(movie => movie.Type.toLowerCase() === type.toLowerCase());
+        set({ movies: filteredMovies, loading: false });
+      } else {
+        set({ error: response.data.message || `Failed to fetch ${type}s`, loading: false });
+      }
+    } catch (error) {
+      set({ error: `Failed to fetch ${type}s`, loading: false });
+    }
+  },
+  fetchMovieDetail: async (imdbID: string) => {
+    set({ loading: true, error: null, trailerError: null, trailerLoading: false });
     try {
       const response = await axios.get<{ success: boolean; message: string; data: Movie & { Response: string; Error?: string } }>(`${OMDB_API_BASE_URL}/${imdbID}`);
 
@@ -108,7 +141,8 @@ const useMovieStore = create<MovieState>((set) => ({
   fetchMovieTrailer: async (imdbID: string) => {
   set({ trailerLoading: true, trailerError: null });
   try {
-    const response = await axios.get(`${TRAILER_API_BASE_URL}/${encodeURIComponent(imdbID)}`);
+    console.log('Fetching trailer for imdbID:', imdbID); // Added console log
+    const response = await axios.get(`${TRAILER_API_BASE_URL}/${imdbID}`);
     if (response.data.success) {
       const trailers = response.data.data; // array
       if (trailers.length === 0) {
@@ -130,12 +164,12 @@ const useMovieStore = create<MovieState>((set) => ({
       set({ trailerError: response.data.message || 'Failed to fetch trailer', trailerLoading: false });
       return null;
     }
-  } catch (error) {
-    set({ trailerError: 'Failed to fetch trailer', trailerLoading: false });
+  } catch (error: any) {
+    set({ trailerError: `Failed to fetch trailer: ${error.message || 'Network error'}`, trailerLoading: false });
     return null;
   }
 },
-
+  setCurrentPage: (page: number) => set({ currentPage: page }),
 }));
 
 export default useMovieStore;

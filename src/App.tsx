@@ -29,7 +29,7 @@ function App() {
               <Header />
               <MovieList />
               <footer className="bg-gray-800 text-white text-center p-4 mt-auto">
-                Powered by OMDb API
+                Powered by OMDb & TMDB API
               </footer>
             </>
           } />

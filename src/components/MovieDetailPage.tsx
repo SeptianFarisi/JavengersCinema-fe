@@ -16,7 +16,7 @@ const MovieDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (!id || !movie) return;
-    if (movie.Trailer || trailerLoading || trailerError) return;
+    if ((movie.Trailer && movie.Trailer !== 'N/A') || trailerLoading || trailerError) return;
     fetchMovieTrailer(id);
 }, [id, movie?.Trailer, trailerLoading, trailerError]);
 

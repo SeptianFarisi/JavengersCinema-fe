@@ -17,7 +17,7 @@ const Header: React.FC = () => {
   return (
     <header className="flex justify-between items-center p-4 bg-white shadow-md">
       <div className="flex items-center">
-        <FaVideo onClick={() => navigate('/login')} className="h-8 w-8 text-red-600 mr-2" /> {/* Using Hero Icon for logo */}
+        <FaVideo onClick={() => navigate('/admin/movies')} className="h-8 w-8 text-red-600 mr-2" /> {/* Using Hero Icon for logo */}
         <span className="text-2xl font-bold text-red-600">JAVENGERS <span className="text-gray-800">CINEMA</span></span>
       </div>
       <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
@@ -38,10 +38,10 @@ const Header: React.FC = () => {
         </button>
       </div>
       <nav className="flex items-center">
-        <a href="#" onClick={() => navigate('/')} className="ml-6 text-gray-800 font-medium hover:text-red-600">HOME</a>
-        <a href="#" className="ml-6 text-gray-800 font-medium hover:text-red-600">MOVIE</a>
-        <a href="#" className="ml-6 text-gray-800 font-medium hover:text-red-600">SERIES</a>
-        <a href="#" className="ml-6 text-gray-800 font-medium hover:text-red-600">EPISODE</a>
+        <a href="/" onClick={() => navigate('/')} className="ml-6 text-gray-800 font-medium hover:text-red-600">HOME</a>
+        <a href="/" className="ml-6 text-gray-800 font-medium hover:text-red-600">MOVIE</a>
+        <a href="/" className="ml-6 text-gray-800 font-medium hover:text-red-600">SERIES</a>
+        <a href="/" className="ml-6 text-gray-800 font-medium hover:text-red-600">EPISODE</a>
         <a onClick={() => navigate('/')} className="ml-6 text-gray-800 font-medium hover:text-red-600 cursor-pointer">NOW PLAYING</a>
       </nav>
     </header>
