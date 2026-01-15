@@ -27,9 +27,7 @@ function App() {
           <Route path="/" element={
             <>
               <Header />
-              <MovieList movies={[]} loading={false} error={null} currentPage={0} totalPages={0} onPageChange={function (page: number): void {
-                throw new Error('Function not implemented.');
-              } } />
+              <MovieListPage />
               <footer className="bg-gray-800 text-white text-center p-4 mt-auto">
                 Powered by OMDb & TMDB API
               </footer>
